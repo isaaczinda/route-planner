@@ -1,0 +1,6 @@
+C:\Users\isaaczinda\Documents\vesper\strm-parser\strm-parser\bin\Debug\strm-parser.exe.config
+C:\Users\isaaczinda\Documents\vesper\strm-parser\strm-parser\bin\Debug\strm-parser.exe
+C:\Users\isaaczinda\Documents\vesper\strm-parser\strm-parser\bin\Debug\strm-parser.pdb
+C:\Users\isaaczinda\Documents\vesper\strm-parser\strm-parser\obj\Debug\strm-parser.csprojResolveAssemblyReference.cache
+C:\Users\isaaczinda\Documents\vesper\strm-parser\strm-parser\obj\Debug\strm-parser.exe
+C:\Users\isaaczinda\Documents\vesper\strm-parser\strm-parser\obj\Debug\strm-parser.pdb

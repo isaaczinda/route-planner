@@ -1,0 +1,143 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace strm_parser
+{
+    class AltitudeMap
+    {
+        int TileLatitude, TileLongitude;
+        int XEntries, YEntries;
+        int SecondsPerEntry;
+        BinaryReader AltitudeFileReader;
+        FileStream AltitudeFile;
+
+        private Tuple<int, int> GetAltitudeExtremes()
+        {
+            int GreatestAltitude = 0;
+            int SmallestAltitude = 0;
+
+            for (int y = 0; y < YEntries; y++)
+            {
+                for (int x = 0; x < XEntries; x++)
+                {
+                    short Altitude = Get(y, x);
+
+                    if (Altitude > GreatestAltitude)
+                        GreatestAltitude = Altitude;
+                    else if (Altitude < SmallestAltitude)
+                        SmallestAltitude = Altitude;
+                 
+                }
+
+                Console.WriteLine(y);
+            }
+
+            return new Tuple<int, int>(GreatestAltitude, SmallestAltitude);
+        }
+
+        public void SaveToImage()
+        {
+            //get biggest and smallest altitude for scaling
+            Tuple<int, int> Extremes = GetAltitudeExtremes();
+            int GreatestAltitude = Extremes.Item1;
+            int SmallestAltitude = Extremes.Item2;
+
+            Bitmap AltitudeImage = new Bitmap(XEntries, YEntries, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            double Scale = 255d / Math.Abs(GreatestAltitude - SmallestAltitude); 
+
+            for (int y = 0; y < YEntries; y++)
+            {
+                for (int x = 0; x < XEntries; x++)
+                {
+                    short Altitude = Get(y, x);
+
+                    if (Altitude != short.MinValue)
+                    {
+                        double ScaledValue = ((Altitude - SmallestAltitude) * Scale);
+                        //Console.WriteLine(y + " of " + YEntries + ", " + ScaledValue);
+
+                        byte ColorByte = Convert.ToByte(Convert.ToInt16(ScaledValue));
+                        AltitudeImage.SetPixel(x, y, Color.FromArgb(ColorByte, ColorByte, ColorByte));
+                    }
+                    else
+                    {
+
+                    }
+                }
+                Console.WriteLine(y);
+            }
+            
+            // setup the bitmap that all of the data will be saved to
+            AltitudeImage.Save("AltitudeImage.bmp");
+        }
+
+
+
+        private string IntToString(int Number, int NumberOfCharacters)
+        {
+            string Return = Convert.ToString(Number);
+
+            //prepend zeroes until length is the target
+            while (Return.Length < NumberOfCharacters)
+            {
+                Return = "0" + Return;
+            }
+
+            return Return;
+        }
+
+        public short Get(int LatitudeSeconds, int LongitudeSeconds)
+        {
+            //go to the appropriate place in the file
+            AltitudeFile.Seek(((((XEntries - 1) - LatitudeSeconds) * YEntries) + ((YEntries - 1) - LongitudeSeconds)) * 2, SeekOrigin.Begin);
+
+            // extract altitude from the file
+            byte[] LittleEndianAltitudeArray = AltitudeFileReader.ReadBytes(2); //byte 0 is most significant
+            short Altitude = (short) ((LittleEndianAltitudeArray[0] << 8) | (LittleEndianAltitudeArray[1]));
+
+
+            //handle lack of information cases
+            if (Altitude == short.MaxValue || Altitude == short.MinValue)
+                return -1;
+            else
+                return Altitude;
+        }
+
+        public AltitudeMap(int TileLatitude, int TileLongitude, int SecondsPerEntry)
+        {
+            this.SecondsPerEntry = SecondsPerEntry;
+            this.TileLongitude = TileLongitude;
+            this.TileLatitude = TileLatitude;
+
+            //open the file whose name corresponds to the lower left corner
+            AltitudeFile = new FileStream("./N" + IntToString(TileLatitude, 2) + "W" + IntToString(TileLongitude, 3) + ".hgt", FileMode.Open);
+            AltitudeFileReader = new BinaryReader(AltitudeFile);
+
+            //calculate the number of entires in the file
+            XEntries = (3600 / SecondsPerEntry) + 1;
+            YEntries = (3600 / SecondsPerEntry) + 1;
+            long TargetFileLength = XEntries * YEntries * 2;
+
+            // throw an exception if the file is the wrong size
+            if (TargetFileLength != AltitudeFile.Length)
+            {
+                throw new IOException("file had the wrong number of entries.");
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            AltitudeMap Temp = new AltitudeMap(47, 122, 1); //this is one arc-second data
+            Temp.SaveToImage();
+        }
+    }
+}

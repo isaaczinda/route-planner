@@ -1,0 +1,14 @@
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\openstreetmap.exe.config
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\openstreetmap.exe
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\openstreetmap.pdb
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\obj\Debug\openstreetmap.csprojResolveAssemblyReference.cache
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\obj\Debug\openstreetmap.exe
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\obj\Debug\openstreetmap.pdb
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.Data.dll
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.dll
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.Graphviz.dll
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.Serialization.dll
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.xml
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.Data.xml
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.Graphviz.xml
+C:\Users\isaaczinda\Documents\vesper\openstreetmap\openstreetmap\bin\Debug\QuickGraph.Serialization.xml
