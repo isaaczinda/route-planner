@@ -90,12 +90,15 @@ namespace openstreetmap
 
     class Program
     {
+        public static GeoCoordinate LowerBound;
+        public static GeoCoordinate UpperBound;
+
         static void Main(string[] args)
         {
             Path Test = new Path();
 
-            GeoCoordinate LowerBound = new GeoCoordinate(47.9806, -122.2113);
-            GeoCoordinate UpperBound = new GeoCoordinate(47.9856, -122.1963);
+            LowerBound = new GeoCoordinate(47.9806, -122.2113);
+            UpperBound = new GeoCoordinate(47.9956, -122.1963);
 
             //float StartLongitude = 
             WebClient WC = new WebClient();

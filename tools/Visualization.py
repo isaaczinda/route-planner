@@ -34,15 +34,16 @@ class Chart:
         # setup all of the points that will be graphed on this map
         self.XPoints = []
         self.YPoints = []
+        self.PointColors = []
 
         #self.map.shadedrelief()
         #self.map.drawcountries()
         #self.map.drawstates()
         #self.map.shadedrelief()
 
-    def DrawCircle(self, Latitude, Longitude):
+    def DrawCircle(self, Latitude, Longitude, Color="black"):
         x, y = self.map([Longitude], [Latitude])
-
+        self.PointColors.append(Color)
         self.XPoints.append(x)
         self.YPoints.append(y)
 
@@ -102,6 +103,6 @@ class Chart:
         Size = [10]*len(self.XPoints)
 
         # graph all of the points
-        plt.scatter(self.XPoints, self.YPoints, Size, marker='D', color="black")
+        plt.scatter(self.XPoints, self.YPoints, Size, marker='D', c=self.PointColors)
 
         plt.show()

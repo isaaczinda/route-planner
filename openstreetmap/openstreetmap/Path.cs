@@ -12,6 +12,7 @@ using QuickGraph.Graphviz.Dot;
 using System.IO;
 using System.Device.Location;
 using QuickGraph.Algorithms;
+using System.Drawing;
 
 namespace openstreetmap
 {
@@ -104,6 +105,21 @@ namespace openstreetmap
         static Dictionary<CompEdge, double> Distances = new Dictionary<CompEdge, double>(); //dictionary that contains distance data between edges
         static Dictionary<CompEdge, double> AltitudeChange = new Dictionary<CompEdge, double>();
 
+        // PointOne must be smaller
+        private static List<double> Gradient(double PointOne, double PointTwo, int NumberOfPoints)
+        {
+            List<double> Return = new List<double>();
+
+            double Step = (PointTwo - PointOne) / (double)(NumberOfPoints - 1); // -1 because we are including both start and end points
+
+            for (double i = PointOne; i < PointTwo - (Step / 2.0); i += Step)
+                Return.Add(i);
+
+            Return.Add(PointTwo); //add the final point to make sure that no precision has been lost
+
+            return Return;
+        }
+
         //returns distance in kilometers
         private static double DistanceBetweenPlaces(GeoCoordinate First, GeoCoordinate Second)
         {
@@ -148,6 +164,31 @@ namespace openstreetmap
                 }
             }
 
+
+            //create an altitude map
+            Bitmap AltitudeImage = new Bitmap(64, 64, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            List<double> LongitudeGradient = Gradient(Program.LowerBound.Longitude, Program.UpperBound.Longitude, 64);
+            List<double> LatitudeGradient = Gradient(Program.LowerBound.Latitude, Program.UpperBound.Latitude, 64);
+
+
+
+            //iterate over altitudes
+            for (int longitudeindex = 0; longitudeindex < LongitudeGradient.Count; longitudeindex++)
+            {
+                for (int latitudeindex = 0; latitudeindex < LatitudeGradient.Count; latitudeindex++)
+                {
+                    short Altitude = AltitudeMap.AltitudeAtPosition(new GeoCoordinate(LatitudeGradient[latitudeindex], LongitudeGradient[longitudeindex]));
+
+                    AltitudeImage.SetPixel(longitudeindex, latitudeindex, Color.FromArgb(Altitude, Altitude, Altitude));
+                }
+            }
+
+            
+            // setup the bitmap that all of the data will be saved to
+            AltitudeImage.Save("RegionalAltitudeImage.bmp");
+
+            //add each edge
             foreach (Way Path in Ways)
             {
                 //add all of the edges
@@ -188,14 +229,15 @@ namespace openstreetmap
             //calcuate costs for each edge
             var Costs = new Dictionary<CompEdge, double>();
 
-            //cycle through each edge and calcualte its cost
+            //cycle through each edge and calculate its cost
             foreach (Edge<int> Edge in Graph.Edges)
             {
                 CompEdge Key = new CompEdge(Edge.Source, Edge.Target);
 
                 double DistanceCost = Distances[Key] * 1000; //convert to meters
                 double AltitudeCost = Math.Pow(AltitudeChange[Key], 2); //square the altitude (in meters)
-                double Weight = DistanceCost + AltitudeCost;
+
+                double Weight = DistanceCost;
                 Costs.Add(Key, Weight);
             }
 
@@ -211,6 +253,7 @@ namespace openstreetmap
 
                 NodeLines[i] = Id + "," + Node.GetById(Id).Location.Latitude + "," + Node.GetById(Id).Location.Longitude;
             }
+
             //save edges to a .csv file
             for (int i = 0; i < Graph.Edges.Count(); i++)
             {
@@ -234,17 +277,22 @@ namespace openstreetmap
             IEnumerable<CompEdge> path;
             if (tryGetPath(To, out path))
             {
+                string ToWrite = "";
                 
+                foreach (CompEdge Edge in path)
+                    ToWrite += Convert.ToString(Edge.Source) + ",";
+
+                File.WriteAllText("chosenpath.csv", ToWrite.Remove(ToWrite.Length - 1)); // remove the last comma
             }
 
             //create a visualizer for the graph
-            GraphvizAlgorithm<int, CompEdge> graphviz = new GraphvizAlgorithm<int, CompEdge>(Graph);
-            string output = "output.dot";
-            graphviz.Generate(new FileDotEngine(), output);
+            //GraphvizAlgorithm<int, CompEdge> graphviz = new GraphvizAlgorithm<int, CompEdge>(Graph);
+            //string output = "output.dot";
+            //graphviz.Generate(new FileDotEngine(), output);
 
             // assumes dot.exe is on the path:
-            var args = string.Format(@"{0} -Tjpg -O", output);
-            System.Diagnostics.Process.Start(@"C:\Program Files (x86)\Graphviz2.38\bin\dot.exe", args);
+            //var args = string.Format(@"{0} -Tjpg -O", output);
+            //System.Diagnostics.Process.Start(@"C:\Program Files (x86)\Graphviz2.38\bin\dot.exe", args);
         }
     }
 }
